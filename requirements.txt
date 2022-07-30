@@ -4,3 +4,5 @@ tld
 flask
 sklearn
 lightgbm
+gunicorn
+ortools
