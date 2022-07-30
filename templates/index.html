@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Malicious URL Finder</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js">
+    </script>
+</head>
+<script>
+
+    let timer;
+
+    document.addEventListener('input', e => {
+        const el = e.target;
+
+        if (el.matches('[data-color]')) {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                document.documentElement.style.setProperty(`--color-${el.dataset.color}`, el.value);
+            }, 100)
+        }
+    });
+
+
+    function convert(val) {
+        if (val == 0 || val == "0") {
+            return 'benign';
+        }
+        else if (val == 1 || val == "1") {
+            return 'defacement';
+        }
+        else if (val == 2 || val == "2") {
+            return 'phishing';
+        }
+        else if (val == 3 || val == "3") {
+            return 'malware';
+        }
+    }
+
+    function myFunction() {
+        var text1 = $('#text1').val();
+        if (text1 == "") {
+            $(".show-data").empty();
+            $(".show-data").append("<h2>URL cannot be empty</h2>");
+            // alert("URL cannot be empty.");
+            return;
+        }
+        $.ajax({
+            url: "/model",
+            type: "POST",
+            data: {
+                url: text1,
+            }
+        }).done(function (response) {
+            $(".show-data").empty();
+            var html = "";
+            response = response.result;
+            $.each(response, function (key, val) {
+                console.log(val);
+                html = "<h2>The Entered URL is " + convert(val) + " URL</h2>"
+            });
+            $(".show-data").append(html);
+        });
+    };  
+
+    function resetText() {
+        console.log("reset");
+        $('#text1').val('');
+        $(".show-data").empty();
+    };
+
+    </script>
+
+<style>
+    @import url("https://rsms.me/inter/inter.css");
+:root {
+  --color-light: white;
+  --color-dark: #212121;
+  --color-signal: #fab700;
+  --color-background: var(--color-light);
+  --color-text: var(--color-dark);
+  --color-accent: var(--color-signal);
+  --size-bezel: 0.5rem;
+  --size-radius: 4px;
+  line-height: 1.4;
+  font-family: "Inter", sans-serif;
+  font-size: calc(0.6rem + 0.4vw);
+  color: var(--color-text);
+  /* background: var(--color-background); */
+  font-weight: 300;
+  padding: 0 calc(var(--size-bezel) * 3);
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 900;
+}
+
+mark {
+  background: var(--color-accent);
+  color: var(--color-text);
+  font-weight: bold;
+  padding: 0 0.2em;
+}
+
+.card {
+  background: var(--color-background);
+  padding: calc(4 * var(--size-bezel));
+  margin-top: calc(4 * var(--size-bezel));
+  border-radius: var(--size-radius);
+  height: 70%;
+  /* border: 3px solid var(--color-shadow, currentColor); */
+  /* box-shadow: 0.5rem 0.5rem 0 var(--color-shadow, currentColor); */
+}
+.card--inverted {
+  --color-background: var(--color-dark);
+  color: var(--color-light);
+  --color-shadow: var(--color-accent);
+}
+.card--accent {
+  --color-background: var(--color-signal);
+  --color-accent: var(--color-light);
+  color: var(--color-dark);
+}
+.card *:first-child {
+  margin-top: 0;
+}
+
+.l-design-widht {
+  max-width: 40rem;
+  padding: 1rem;
+}
+
+.input {
+  position: relative;
+}
+.input__label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: calc(var(--size-bezel) * 0.75) calc(var(--size-bezel) * 0.5);
+  margin: calc(var(--size-bezel) * 0.75 + 3px) calc(var(--size-bezel) * 0.5);
+  background: pink;
+  white-space: nowrap;
+  transform: translate(0, 0);
+  transform-origin: 0 0;
+  background: var(--color-background);
+  transition: transform 120ms ease-in;
+  font-weight: bold;
+  line-height: 1.2;
+}
+.input__field {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  border: 3px solid currentColor;
+  padding: calc(var(--size-bezel) * 1.5) var(--size-bezel);
+  color: currentColor;
+  background: transparent;
+  border-radius: var(--size-radius);
+}
+.input__field:not(:-moz-placeholder-shown) + .input__label {
+  transform: translate(0.25rem, -65%) scale(0.8);
+  color: var(--color-accent);
+}
+.input__field:not(:-ms-input-placeholder) + .input__label {
+  transform: translate(0.25rem, -65%) scale(0.8);
+  color: var(--color-accent);
+}
+.input__field:focus + .input__label, .input__field:not(:placeholder-shown) + .input__label {
+  transform: translate(0.25rem, -65%) scale(0.8);
+  color: var(--color-accent);
+}
+
+.button-group {
+  margin-top: calc(var(--size-bezel) * 2.5);
+}
+
+button {
+  color: currentColor;
+  padding: var(--size-bezel) calc(var(--size-bezel) * 2);
+  background: var(--color-accent);
+  border: none;
+  border-radius: var(--size-radius);
+  font-weight: 900;
+}
+button[type=reset] {
+  background: var(--color-background);
+  font-weight: 200;
+}
+
+button + button {
+  margin-left: calc(var(--size-bezel) * 2);
+}
+
+.icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-right: 0.5em;
+}
+
+.hidden {
+  display: none;
+}
+
+    html {
+        height: 100%;
+        width: 100vw;
+        overflow: hidden;
+    }
+    body {
+        margin: 0px;
+        padding: 0px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: #000;
+    }
+
+    p {
+        font-size: 10px;
+        line-height: 10px;
+        background: url('https://internetofbusiness.com/wp-content/uploads/2018/03/data-security-t.jpg') no-repeat center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        background-attachment: fixed;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: rgba(255, 255, 255, .1);
+    }
+
+    .shadow {
+        position: absolute;
+        left: calc(50% - 250px);
+        top: calc(50% - 150px);
+        marginx: 100px auto 100px;
+        width: 600px;
+        height: 300px;
+        border-radius: 5px;
+        background: linear-gradient(0deg, #000, #262626);
+        color: black;
+    }
+
+    .shadow:before,
+    .shadow:after {
+        content: '';
+        border-radius: 5px;
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        background: linear-gradient(45deg, #fb0094, #0000ff, #00ff00, #ff0000, #fb0094, #0000ff, #00ff00, #ff0000);
+        background-size: 400%;
+        width: calc(100% + 4px);
+        height: calc(100% + 4px);
+        ;
+        z-index: -1;
+        animation: animate 20s linear infinite;
+    }
+
+    .shadow:after {
+        filter: blur(50px);
+    }
+
+    @keyframes animate {
+        0% {
+            background-position: 0 0;
+        }
+
+        50% {
+            background-position: 400% 0;
+        }
+
+        100% {
+            background-position: 0 0;
+        }
+    }
+</style>
+
+<body>
+
+    <p>Security, in information technology (IT), is the defense of digital information and IT assets against internal
+        and external, malicious and accidental threats. This defense includes detection, prevention and response to
+        threats through the use of security policies, software tools and IT services.
+        Security is critical for enterprises and organizations of all sizes and in all industries. Weak security can
+        result in compromised systems or data, either by a malicious threat actor or an unintentional internal threat.
+        Not meeting security standards that are regulated by a separate organization or law, such as PCI DSS 3.0 or
+        HIPAA compliance, can also result in financial penalties.
+        Physical security
+        Physical security is the protection of personnel, hardware, software, networks and data from physical actions,
+        intrusions and other events that could damage an organization. This includes natural disasters, fire, theft and
+        terrorism, among others. Physical security for enterprises often includes employee access control to the office
+        buildings as well as specific locations, such as data centers. An example of a common physical security threat
+        is an attacker gaining entry to an organization and using a USB storage drive to either copy and remove
+        sensitive data or physically deliver malware directly to systems. Threats to physical security may require less
+        technical savvy on the part of the attacker, but physical security is just as important as information security.
+        Information security
+        Information security, also called infosec, encompasses a broad set of strategies for managing the process, tools
+        and policies that aim to prevent, detect and respond to threats to both digital and nondigital information
+        assets. Infosec includes several specialized categories, including:
+        Application security - the protection of applications from threats that seek to manipulate application and
+        access, steal, modify or delete data. These protections use software, hardware and policies, and are sometimes
+        called countermeasures. Common countermeasures include application firewalls, encryption programs, patch
+        management and biometric authentication systems.
+
+        Information security update 2015 with David Sherry
+        Information security update 2015 with David Sherry
+        Play
+        Mute
+        Current Time 0:00
+        /
+        Duration Time 14:05
+
+        Fullscreen
+        Learn from the past: Ensure a secure future of information security
+        Cloud security - the set of policies and technologies designed to protect data and infrastructure involved in a
+        cloud computing environment. The top concerns that cloud security looks to address are identity and access
+        management, and data privacy.
+
+        Endpoint security - the part of network security that requires network devices nodes to meet certain security
+        standards before they can connect to a secure network. Nodes devices include PCs, laptops, smartphones and
+        tablets. Endpoint security also extends to equipment like point-of-sale (POS) terminals, bar code readers and
+        IoT devices.
+        Internet security - the protection of software applications, web browsers and virtual private networks (VPNs)
+        that use the internet. Using techniques such as encryption and internet security aim to defend the transfer of
+        data from attacks like malware and phishing as well as denial-of-service (DoS) attacks.
+        Mobile security - the protection of portable devices, such as smartphones, tablets and laptops. Mobile security,
+        also known as wireless security, secures the devices and the networks they connect to in order to prevent theft,
+        data leakage and malware attacks.
+        Network security - the protection of a network infrastructure and the devices connected to it through
+        technologies, policies and practices. Network security defends against threats such as unauthorized access, and
+        malicious use and modifications.
+        Security concepts and principles
+        Security in IT is a broad concept that blankets many different ideas and principles. Some of the most important
+        security concepts and principles are:
+        Defense in depth - a strategy that uses multiple countermeasures to protect information and is based on the
+        military principle that it's more difficult for an enemy to beat a multilayered defense system than it is to
+        beat a single layer.
+
+        Least privilege - a principle that limits user and program access to the lowest possible level of access rights
+        in order to strengthen security.
+        Vulnerability management - an approach to security that requires checking for vulnerabilities, identifying them,
+        verifying them, mitigating them and patching the vulnerabilities.
+        Risk management - the process of identifying, assessing and controlling risks to an organization's IT
+        environment.
+        Patch management - an area of systems management that involves acquiring, testing and installing patches and
+        updates for flawed code in applications, operating systems and firmware.
+        Application lifecycle management - the concept of protecting all stages of the development of an application to
+        reduce its exposure to bugs, design flaws and configuration errors, such as not changing default passwords that
+        could be exploited by attackers.
+        While there are many other concepts and principles that make up security, these are some of the most important.
+        The combination of all of these principles will not guarantee security for an organization, but it puts the
+        organization in a better position to defend itself from infosec threats.
+        Security, in information technology (IT), is the defense of digital information and IT assets against internal
+        and external, malicious and accidental threats. This defense includes detection, prevention and response to
+        threats through the use of security policies, software tools and IT services.
+        Security is critical for enterprises and organizations of all sizes and in all industries. Weak security can
+        result in compromised systems or data, either by a malicious threat actor or an unintentional internal threat.
+        Not meeting security standards that are regulated by a separate organization or law, such as PCI DSS 3.0 or
+        HIPAA compliance, can also result in financial penalties.
+        Physical security
+        Physical security is the protection of personnel, hardware, software, networks and data from physical actions,
+        intrusions and other events that could damage an organization. This includes natural disasters, fire, theft and
+        terrorism, among others. Physical security for enterprises often includes employee access control to the office
+        buildings as well as specific locations, such as data centers. An example of a common physical security threat
+        is an attacker gaining entry to an organization and using a USB storage drive to either copy and remove
+        sensitive data or physically deliver malware directly to systems. Threats to physical security may require less
+        technical savvy on the part of the attacker, but physical security is just as important as information security.
+        Information security
+        Information security, also called infosec, encompasses a broad set of strategies for managing the process, tools
+        and policies that aim to prevent, detect and respond to threats to both digital and nondigital information
+        assets. Infosec includes several specialized categories, including:
+        Application security - the protection of applications from threats that seek to manipulate application and
+        access, steal, modify or delete data. These protections use software, hardware and policies, and are sometimes
+        called countermeasures. Common countermeasures include application firewalls, encryption programs, patch
+        management and biometric authentication systems.
+
+        Information security update 2015 with David Sherry
+        Information security update 2015 with David Sherry
+        Play
+        Mute
+        Current Time 0:00
+        /
+        Duration Time 14:05
+
+        Fullscreen
+        Learn from the past: Ensure a secure future of information security
+        Cloud security - the set of policies and technologies designed to protect data and infrastructure involved in a
+        cloud computing environment. The top concerns that cloud security looks to address are identity and access
+        management, and data privacy.
+
+        Endpoint security - the part of network security that requires network devices nodes to meet certain security
+        standards before they can connect to a secure network. Nodes devices include PCs, laptops, smartphones and
+        tablets. Endpoint security also extends to equipment like point-of-sale (POS) terminals, bar code readers and
+        IoT devices.
+        Internet security - the protection of software applications, web browsers and virtual private networks (VPNs)
+        that use the internet. Using techniques such as encryption and internet security aim to defend the transfer of
+        data from attacks like malware and phishing as well as denial-of-service (DoS) attacks.
+        Mobile security - the protection of portable devices, such as smartphones, tablets and laptops. Mobile security,
+        also known as wireless security, secures the devices and the networks they connect to in order to prevent theft,
+        data leakage and malware attacks.
+        Network security - the protection of a network infrastructure and the devices connected to it through
+        technologies, policies and practices. Network security defends against threats such as unauthorized access, and
+        malicious use and modifications.
+        Security concepts and principles
+        Security in IT is a broad concept that blankets many different ideas and principles. Some of the most important
+        security concepts and principles are:
+        Defense in depth - a strategy that uses multiple countermeasures to protect information and is based on the
+        military principle that it's more difficult for an enemy to beat a multilayered defense system than it is to
+        beat a single layer.
+
+        Least privilege - a principle that limits user and program access to the lowest possible level of access rights
+        in order to strengthen security.
+        Vulnerability management - an approach to security that requires checking for vulnerabilities, identifying them,
+        verifying them, mitigating them and patching the vulnerabilities.
+        Risk management - the process of identifying, assessing and controlling risks to an organization's IT
+        environment.
+        Patch management - an area of systems management that involves acquiring, testing and installing patches and
+        updates for flawed code in applications, operating systems and firmware.
+        Application lifecycle management - the concept of protecting all stages of the development of an application to
+        reduce its exposure to bugs, design flaws and configuration errors, such as not changing default passwords that
+        could be exploited by attackers.
+        While there are many other concepts and principles that make up security, these are some of the most important.
+        The combination of all of these principles will not guarantee security for an organization, but it puts the
+        organization in a better position to defend itself from infosec threats.
+        Security, in information technology (IT), is the defense of digital information and IT assets against internal
+        and external, malicious and accidental threats. This defense includes detection, prevention and response to
+        threats through the use of security policies, software tools and IT services.
+        Security is critical for enterprises and organizations of all sizes and in all industries. Weak security can
+        result in compromised systems or data, either by a malicious threat actor or an unintentional internal threat.
+        Not meeting security standards that are regulated by a separate organization or law, such as PCI DSS 3.0 or
+        HIPAA compliance, can also result in financial penalties.
+        Physical security
+        Physical security is the protection of personnel, hardware, software, networks and data from physical actions,
+        intrusions and other events that could damage an organization. This includes natural disasters, fire, theft and
+        terrorism, among others. Physical security for enterprises often includes employee access control to the office
+        buildings as well as specific locations, such as data centers. An example of a common physical security threat
+        is an attacker gaining entry to an organization and using a USB storage drive to either copy and remove
+        sensitive data or physically deliver malware directly to systems. Threats to physical security may require less
+        technical savvy on the part of the attacker, but physical security is just as important as information security.
+        Information security
+        Information security, also called infosec, encompasses a broad set of strategies for managing the process, tools
+        and policies that aim to prevent, detect and respond to threats to both digital and nondigital information
+        assets. Infosec includes several specialized categories, including:
+        Application security - the protection of applications from threats that seek to manipulate application and
+        access, steal, modify or delete data. These protections use software, hardware and policies, and are sometimes
+        called countermeasures. Common countermeasures include application firewalls, encryption programs, patch
+        management and biometric authentication systems.
+
+        Information security update 2015 with David Sherry
+        Information security update 2015 with David Sherry
+        Play
+        Mute
+        Current Time 0:00
+        /
+        Duration Time 14:05
+
+        Fullscreen
+        Learn from the past: Ensure a secure future of information security
+        Cloud security - the set of policies and technologies designed to protect data and infrastructure involved in a
+        cloud computing environment. The top concerns that cloud security looks to address are identity and access
+        management, and data privacy.
+
+        Endpoint security - the part of network security that requires network devices nodes to meet certain security
+        standards before they can connect to a secure network. Nodes devices include PCs, laptops, smartphones and
+        tablets. Endpoint security also extends to equipment like point-of-sale (POS) terminals, bar code readers and
+        IoT devices.
+        Internet security - the protection of software applications, web browsers and virtual private networks (VPNs)
+        that use the internet. Using techniques such as encryption and internet security aim to defend the transfer of
+        data from attacks like malware and phishing as well as denial-of-service (DoS) attacks.
+        Mobile security - the protection of portable devices, such as smartphones, tablets and laptops. Mobile security,
+        also known as wireless security, secures the devices and the networks they connect to in order to prevent theft,
+        data leakage and malware attacks.
+        Network security - the protection of a network infrastructure and the devices connected to it through
+        technologies, policies and practices. Network security defends against threats such as unauthorized access, and
+        malicious use and modifications.
+        Security concepts and principles
+        Security in IT is a broad concept that blankets many different ideas and principles. Some of the most important
+        security concepts and principles are:
+        Defense in depth - a strategy that uses multiple countermeasures to protect information and is based on the
+        military principle that it's more difficult for an enemy to beat a multilayered defense system than it is to
+        beat a single layer.
+
+        Least privilege - a principle that limits user and program access to the lowest possible level of access rights
+        in order to strengthen security.
+        Vulnerability management - an approach to security that requires checking for vulnerabilities, identifying them,
+        verifying them, mitigating them and patching the vulnerabilities.
+        Risk management - the process of identifying, assessing and controlling risks to an organization's IT
+        environment.
+        Patch management - an area of systems management that involves acquiring, testing and installing patches and
+        updates for flawed code in applications, operating systems and firmware.
+        Application lifecycle management - the concept of protecting all stages of the development of an application to
+        reduce its exposure to bugs, design flaws and configuration errors, such as not changing default passwords that
+        could be exploited by attackers.
+        While there are many other concepts and principles that make up security, these are some of the most important.
+        The combination of all of these principles will not guarantee security for an organization, but it puts the
+        organization in a better position to defend itself from infosec threats.
+        Security, in information technology (IT), is the defense of digital information and IT assets against internal
+        and external, malicious and accidental threats. This defense includes detection, prevention and response to
+        threats through the use of security policies, software tools and IT services.
+        Security is critical for enterprises and organizations of all sizes and in all industries. Weak security can
+        result in compromised systems or data, either by a malicious threat actor or an unintentional internal threat.
+        Not meeting security standards that are regulated by a separate organization or law, such as PCI DSS 3.0 or
+        HIPAA compliance, can also result in financial penalties.
+        Physical security
+        Physical security is the protection of personnel, hardware, software, networks and data from physical actions,
+        intrusions and other events that could damage an organization. This includes natural disasters, fire, theft and
+        terrorism, among others. Physical security for enterprises often includes employee access control to the office
+        buildings as well as specific locations, such as data centers. An example of a common physical security threat
+        is an attacker gaining entry to an organization and using a USB storage drive to either copy and remove
+        sensitive data or physically deliver malware directly to systems. Threats to physical security may require less
+        technical savvy on the part of the attacker, but physical security is just as important as information security.
+        Information security
+        Information security, also called infosec, encompasses a broad set of strategies for managing the process, tools
+        and policies that aim to prevent, detect and respond to threats to both digital and nondigital information
+        assets. Infosec includes several specialized categories, including:
+        Application security - the protection of applications from threats that seek to manipulate application and
+        access, steal, modify or delete data. These protections use software, hardware and policies, and are sometimes
+        called countermeasures. Common countermeasures include application firewalls, encryption programs, patch
+        management and biometric authentication systems.
+
+        Information security update 2015 with David Sherry
+        Information security update 2015 with David Sherry
+        Play
+        Mute
+        Current Time 0:00
+        /
+        Duration Time 14:05
+
+        Fullscreen
+        Learn from the past: Ensure a secure future of information security
+        Cloud security - the set of policies and technologies designed to protect data and infrastructure involved in a
+        cloud computing environment. The top concerns that cloud security looks to address are identity and access
+        management, and data privacy.
+
+        Endpoint security - the part of network security that requires network devices nodes to meet certain security
+        standards before they can connect to a secure network. Nodes devices include PCs, laptops, smartphones and
+        tablets. Endpoint security also extends to equipment like point-of-sale (POS) terminals, bar code readers and
+        IoT devices.
+        Internet security - the protection of software applications, web browsers and virtual private networks (VPNs)
+        that use the internet. Using techniques such as encryption and internet security aim to defend the transfer of
+        data from attacks like malware and phishing as well as denial-of-service (DoS) attacks.
+        Mobile security - the protection of portable devices, such as smartphones, tablets and laptops. Mobile security,
+        also known as wireless security, secures the devices and the networks they connect to in order to prevent theft,
+        data leakage and malware attacks.
+        Network security - the protection of a network infrastructure and the devices connected to it through
+        technologies, policies and practices. Network security defends against threats such as unauthorized access, and
+        malicious use and modifications.
+        Security concepts and principles
+        Security in IT is a broad concept that blankets many different ideas and principles. Some of the most important
+        security concepts and principles are:
+        Defense in depth - a strategy that uses multiple countermeasures to protect information and is based on the
+        military principle that it's more difficult for an enemy to beat a multilayered defense system than it is to
+        beat a single layer.
+
+        Least privilege - a principle that limits user and program access to the lowest possible level of access rights
+        in order to strengthen security.
+        Vulnerability management - an approach to security that requires checking for vulnerabilities, identifying them,
+        verifying them, mitigating them and patching the vulnerabilities.
+        Risk management - the process of identifying, assessing and controlling risks to an organization's IT
+        environment.
+        Patch management - an area of systems management that involves acquiring, testing and installing patches and
+        updates for flawed code in applications, operating systems and firmware.
+        Application lifecycle management - the concept of protecting all stages of the development of an application to
+        reduce its exposure to bugs, design flaws and configuration errors, such as not changing default passwords that
+        could be exploited by attackers.
+        While there are many other concepts and principles that make up security, these are some of the most important.
+        The combination of all of these principles will not guarantee security for an organization, but it puts the
+        organization in a better position to defend itself from infosec threats.
+        Security, in information technology (IT), is the defense of digital information and IT assets against internal
+        and external, malicious and accidental threats. This defense includes detection, prevention and response to
+        threats through the use of security policies, software tools and IT services.
+        Security is critical for enterprises and organizations of all sizes and in all industries. Weak security can
+        result in compromised systems or data, either by a malicious threat actor or an unintentional internal threat.
+        Not meeting security standards that are regulated by a separate organization or law, such as PCI DSS 3.0 or
+        HIPAA compliance, can also result in financial penalties.
+        Physical security
+        Physical security is the protection of personnel, hardware, software, networks and data from physical actions,
+        intrusions and other events that could damage an organization. This includes natural disasters, fire, theft and
+        terrorism, among others. Physical security for enterprises often includes employee access control to the office
+        buildings as well as specific locations, such as data centers. An example of a common physical security threat
+        is an attacker gaining entry to an organization and using a USB storage drive to either copy and remove
+        sensitive data or physically deliver malware directly to systems. Threats to physical security may require less
+        technical savvy on the part of the attacker, but physical security is just as important as information security.
+        Information security
+        Information security, also called infosec, encompasses a broad set of strategies for managing the process, tools
+        and policies that aim to prevent, detect and respond to threats to both digital and nondigital information
+        assets. Infosec includes several specialized categories, including:
+        Application security - the protection of applications from threats that seek to manipulate application and
+        access, steal, modify or delete data. These protections use software, hardware and policies, and are sometimes
+        called countermeasures. Common countermeasures include application firewalls, encryption programs, patch
+        management and biometric authentication systems.
+
+        Information security update 2015 with David Sherry
+        Information security update 2015 with David Sherry
+        Play
+        Mute
+        Current Time 0:00
+        /
+        Duration Time 14:05
+
+        Fullscreen
+        Learn from the past: Ensure a secure future of information security
+        Cloud security - the set of policies and technologies designed to protect data and infrastructure involved in a
+        cloud computing environment. The top concerns that cloud security looks to address are identity and access
+        management, and data privacy.
+
+        Endpoint security - the part of network security that requires network devices nodes to meet certain security
+        standards before they can connect to a secure network. Nodes devices include PCs, laptops, smartphones and
+        tablets. Endpoint security also extends to equipment like point-of-sale (POS) terminals, bar code readers and
+        IoT devices.
+        Internet security - the protection of software applications, web browsers and virtual private networks (VPNs)
+        that use the internet. Using techniques such as encryption and internet security aim to defend the transfer of
+        data from attacks like malware and phishing as well as denial-of-service (DoS) attacks.
+        Mobile security - the protection of portable devices, such as smartphones, tablets and laptops. Mobile security,
+        also known as wireless security, secures the devices and the networks they connect to in order to prevent theft,
+        data leakage and malware attacks.
+        Network security - the protection of a network infrastructure and the devices connected to it through
+        technologies, policies and practices. Network security defends against threats such as unauthorized access, and
+        malicious use and modifications.
+        Security concepts and principles
+        Security in IT is a broad concept that blankets many different ideas and principles. Some of the most important
+        security concepts and principles are:
+        Defense in depth - a strategy that uses multiple countermeasures to protect information and is based on the
+        military principle that it's more difficult for an enemy to beat a multilayered defense system than it is to
+        beat a single layer.
+
+        Least privilege - a principle that limits user and program access to the lowest possible level of access rights
+        in order to strengthen security.
+        Vulnerability management - an approach to security that requires checking for vulnerabilities, identifying them,
+        verifying them, mitigating them and patching the vulnerabilities.
+        Risk management - the process of identifying, assessing and controlling risks to an organization's IT
+        environment.
+        Patch management - an area of systems management that involves acquiring, testing and installing patches and
+        updates for flawed code in applications, operating systems and firmware.
+        Application lifecycle management - the concept of protecting all stages of the development of an application to
+        reduce its exposure to bugs, design flaws and configuration errors, such as not changing default passwords that
+        could be exploited by attackers.
+        While there are many other concepts and principles that make up security, these are some of the most important.
+        The combination of all of these principles will not guarantee security for an organization, but it puts the
+        organization in a better position to defend itself from infosec threats.
+        Security, in information technology (IT), is the defense of digital information and IT assets against internal
+        and external, malicious and accidental threats. This defense includes detection, prevention and response to
+        threats through the use of security policies, software tools and IT services.
+        Security is critical for enterprises and organizations of all sizes and in all industries. Weak security can
+        result in compromised systems or data, either by a malicious threat actor or an unintentional internal threat.
+        Not meeting security standards that are regulated by a separate organization or law, such as PCI DSS 3.0 or
+        HIPAA compliance, can also result in financial penalties.
+        Physical security
+        Physical security is the protection of personnel, hardware, software, networks and data from physical actions,
+        intrusions and other events that could damage an organization. This includes natural disasters, fire, theft and
+        terrorism, among others. Physical security for enterprises often includes employee access control to the office
+        buildings as well as specific locations, such as data centers. An example of a common physical security threat
+        is an attacker gaining entry to an organization and using a USB storage drive to either copy and remove
+        sensitive data or physically deliver malware directly to systems. Threats to physical security may require less
+        technical savvy on the part of the attacker, but physical security is just as important as information security.
+        Information security
+        Information security, also called infosec, encompasses a broad set of strategies for managing the process, tools
+        and policies that aim to prevent, detect and respond to threats to both digital and nondigital information
+        assets. Infosec includes several specialized categories, including:
+        Application security - the protection of applications from threats that seek to manipulate application and
+        access, steal, modify or delete data. These protections use software, hardware and policies, and are sometimes
+        called countermeasures. Common countermeasures include application firewalls, encryption programs, patch
+        management and biometric authentication systems.
+
+        Information security update 2015 with David Sherry
+        Information security update 2015 with David Sherry
+        Play
+        Mute
+        Current Time 0:00
+        /
+        Duration Time 14:05
+
+        Fullscreen
+        Learn from the past: Ensure a secure future of information security
+        Cloud security - the set of policies and technologies designed to protect data and infrastructure involved in a
+        cloud computing environment. The top concerns that cloud security looks to address are identity and access
+        management, and data privacy.
+
+        Endpoint security - the part of network security that requires network devices nodes to meet certain security
+        standards before they can connect to a secure network. Nodes devices include PCs, laptops, smartphones and
+        tablets. Endpoint security also extends to equipment like point-of-sale (POS) terminals, bar code readers and
+        IoT devices.
+        Internet security - the protection of software applications, web browsers and virtual private networks (VPNs)
+        that use the internet. Using techniques such as encryption and internet security aim to defend the transfer of
+        data from attacks like malware and phishing as well as denial-of-service (DoS) attacks.
+        Mobile security - the protection of portable devices, such as smartphones, tablets and laptops. Mobile security,
+        also known as wireless security, secures the devices and the networks they connect to in order to prevent theft,
+        data leakage and malware attacks.
+        Network security - the protection of a network infrastructure and the devices connected to it through
+        technologies, policies and practices. Network security defends against threats such as unauthorized access, and
+        malicious use and modifications.
+        Security concepts and principles
+        Security in IT is a broad concept that blankets many different ideas and principles. Some of the most important
+        security concepts and principles are:
+        Defense in depth - a strategy that uses multiple countermeasures to protect information and is based on the
+        military principle that it's more difficult for an enemy to beat a multilayered defense system than it is to
+        beat a single layer.
+
+        Least privilege - a principle that limits user and program access to the lowest possible level of access rights
+        in order to strengthen security.
+        Vulnerability management - an approach to security that requires checking for vulnerabilities, identifying them,
+        verifying them, mitigating them and patching the vulnerabilities.
+        Risk management - the process of identifying, assessing and controlling risks to an organization's IT
+        environment.
+        Patch management - an area of systems management that involves acquiring, testing and installing patches and
+        updates for flawed code in applications, operating systems and firmware.
+        Application lifecycle management - the concept of protecting all stages of the development of an application to
+        reduce its exposure to bugs, design flaws and configuration errors, such as not changing default passwords that
+        could be exploited by attackers.
+        While there are many other concepts and principles that make up security, these are some of the most important.
+        The combination of all of these principles will not guarantee security for an organization, but it puts the
+        organization in a better position to defend itself from infosec threats.
+        Security, in information technology (IT), is the defense of digital information and IT assets against internal
+        and external, malicious and accidental threats. This defense includes detection, prevention and response to
+        threats through the use of security policies, software tools and IT services.
+        Security is critical for enterprises and organizations of all sizes and in all industries. Weak security can
+        result in compromised systems or data, either by a malicious threat actor or an unintentional internal threat.
+        Not meeting security standards that are regulated by a separate organization or law, such as PCI DSS 3.0 or
+        HIPAA compliance, can also result in financial penalties.
+        Physical security
+        Physical security is the protection of personnel, hardware, software, networks and data from physical actions,
+        intrusions and other events that could damage an organization. This includes natural disasters, fire, theft and
+        terrorism, among others. Physical security for enterprises often includes employee access control to the office
+        buildings as well as specific locations, such as data centers. An example of a common physical security threat
+        is an attacker gaining entry to an organization and using a USB storage drive to either copy and remove
+        sensitive data or physically deliver malware directly to systems. Threats to physical security may require less
+        technical savvy on the part of the attacker, but physical security is just as important as information security.
+        Information security
+        Information security, also called infosec, encompasses a broad set of strategies for managing the process, tools
+        and policies that aim to prevent, detect and respond to threats to both digital and nondigital information
+        assets. Infosec includes several specialized categories, including:
+        Application security - the protection of applications from threats that seek to manipulate application and
+        access, steal, modify or delete data. These protections use software, hardware and policies, and are sometimes
+        called countermeasures. Common countermeasures include application firewalls, encryption programs, patch
+        management and biometric authentication systems.
+
+        Information security update 2015 with David Sherry
+        Information security update 2015 with David Sherry
+        Play
+        Mute
+        Current Time 0:00
+        /
+        Duration Time 14:05
+
+        Fullscreen
+        Learn from the past: Ensure a secure future of information security
+        Cloud security - the set of policies and technologies designed to protect data and infrastructure involved in a
+        cloud computing environment. The top concerns that cloud security looks to address are identity and access
+        management, and data privacy.
+
+        Endpoint security - the part of network security that requires network devices nodes to meet certain security
+        standards before they can connect to a secure network. Nodes devices include PCs, laptops, smartphones and
+        tablets. Endpoint security also extends to equipment like point-of-sale (POS) terminals, bar code readers and
+        IoT devices.
+        Internet security - the protection of software applications, web browsers and virtual private networks (VPNs)
+        that use the internet. Using techniques such as encryption and internet security aim to defend the transfer of
+        data from attacks like malware and phishing as well as denial-of-service (DoS) attacks.
+        Mobile security - the protection of portable devices, such as smartphones, tablets and laptops. Mobile security,
+        also known as wireless security, secures the devices and the networks they connect to in order to prevent theft,
+        data leakage and malware attacks.
+        Network security - the protection of a network infrastructure and the devices connected to it through
+        technologies, policies and practices. Network security defends against threats such as unauthorized access, and
+        malicious use and modifications.
+        Security concepts and principles
+        Security in IT is a broad concept that blankets many different ideas and principles. Some of the most important
+        security concepts and principles are:
+        Defense in depth - a strategy that uses multiple countermeasures to protect information and is based on the
+        military principle that it's more difficult for an enemy to beat a multilayered defense system than it is to
+        beat a single layer.
+
+        Least privilege - a principle that limits user and program access to the lowest possible level of access rights
+        in order to strengthen security.
+        Vulnerability management - an approach to security that requires checking for vulnerabilities, identifying them,
+        verifying them, mitigating them and patching the vulnerabilities.
+        Risk management - the process of identifying, assessing and controlling risks to an organization's IT
+        environment.
+        Patch management - an area of systems management that involves acquiring, testing and installing patches and
+        updates for flawed code in applications, operating systems and firmware.
+        Application lifecycle management - the concept of protecting all stages of the development of an application to
+        reduce its exposure to bugs, design flaws and configuration errors, such as not changing default passwords that
+        could be exploited by attackers.
+        While there are many other concepts and principles that make up security, these are some of the most important.
+        The combination of all of these principles will not guarantee security for an organization, but it puts the
+        organization in a better position to defend itself from infosec threats.
+        Security, in information technology (IT), is the defense of digital information and IT assets against internal
+        and external, malicious and accidental threats. This defense includes detection, prevention and response to
+        threats through the use of security policies, software tools and IT services.
+        Security is critical for enterprises and organizations of all sizes and in all industries. Weak security can
+        result in compromised systems or data, either by a malicious threat actor or an unintentional internal threat.
+        Not meeting security standards that are regulated by a separate organization or law, such as PCI DSS 3.0 or
+        HIPAA compliance, can also result in financial penalties.
+        Physical security
+        Physical security is the protection of personnel, hardware, software, networks and data from physical actions,
+        intrusions and other events that could damage an organization. This includes natural disasters, fire, theft and
+        terrorism, among others. Physical security for enterprises often includes employee access control to the office
+        buildings as well as specific locations, such as data centers. An example of a common physical security threat
+        is an attacker gaining entry to an organization and using a USB storage drive to either copy and remove
+        sensitive data or physically deliver malware directly to systems. Threats to physical security may require less
+        technical savvy on the part of the attacker, but physical security is just as important as information security.
+        Information security
+        Information security, also called infosec, encompasses a broad set of strategies for managing the process, tools
+        and policies that aim to prevent, detect and respond to threats to both digital and nondigital information
+        assets. Infosec includes several specialized categories, including:
+        Application security - the protection of applications from threats that seek to manipulate application and
+        access, steal, modify or delete data. These protections use software, hardware and policies, and are sometimes
+        called countermeasures. Common countermeasures include application firewalls, encryption programs, patch
+        management and biometric authentication systems.
+
+        Information security update 2015 with David Sherry
+        Information security update 2015 with David Sherry
+        Play
+        Mute
+        Current Time 0:00
+        /
+        Duration Time 14:05
+
+        Fullscreen
+        Learn from the past: Ensure a secure future of information security
+        Cloud security - the set of policies and technologies designed to protect data and infrastructure involved in a
+        cloud computing environment. The top concerns that cloud security looks to address are identity and access
+        management, and data privacy.
+
+        Endpoint security - the part of network security that requires network devices nodes to meet certain security
+        standards before they can connect to a secure network. Nodes devices include PCs, laptops, smartphones and
+        tablets. Endpoint security also extends to equipment like point-of-sale (POS) terminals, bar code readers and
+        IoT devices.
+        Internet security - the protection of software applications, web browsers and virtual private networks (VPNs)
+        that use the internet. Using techniques such as encryption and internet security aim to defend the transfer of
+        data from attacks like malware and phishing as well as denial-of-service (DoS) attacks.
+        Mobile security - the protection of portable devices, such as smartphones, tablets and laptops. Mobile security,
+        also known as wireless security, secures the devices and the networks they connect to in order to prevent theft,
+        data leakage and malware attacks.
+        Network security - the protection of a network infrastructure and the devices connected to it through
+        technologies, policies and practices. Network security defends against threats such as unauthorized access, and
+        malicious use and modifications.
+        Security concepts and principles
+        Security in IT is a broad concept that blankets many different ideas and principles. Some of the most important
+        security concepts and principles are:
+        Defense in depth - a strategy that uses multiple countermeasures to protect information and is based on the
+        military principle that it's more difficult for an enemy to beat a multilayered defense system than it is to
+        beat a single layer.
+
+        Least privilege - a principle that limits user and program access to the lowest possible level of access rights
+        in order to strengthen security.
+        Vulnerability management - an approach to security that requires checking for vulnerabilities, identifying them,
+        verifying them, mitigating them and patching the vulnerabilities.
+        Risk management - the process of identifying, assessing and controlling risks to an organization's IT
+        environment.
+        Patch management - an area of systems management that involves acquiring, testing and installing patches and
+        updates for flawed code in applications, operating systems and firmware.
+        Application lifecycle management - the concept of protecting all stages of the development of an application to
+        reduce its exposure to bugs, design flaws and configuration errors, such as not changing default passwords that
+        could be exploited by attackers.
+        While there are many other concepts and principles that make up security, these are some of the most important.
+        The combination of all of these principles will not guarantee security for an organization, but it puts the
+        organization in a better position to defend itself from infosec threats.
+        Security, in information technology (IT), is the defense of digital information and IT assets against internal
+        and external, malicious and accidental threats. This defense includes detection, prevention and response to
+        threats through the use of security policies, software tools and IT services.
+        Security is critical for enterprises and organizations of all sizes and in all industries. Weak security can
+        result in compromised systems or data, either by a malicious threat actor or an unintentional internal threat.
+        Not meeting security standards that are regulated by a separate organization or law, such as PCI DSS 3.0 or
+        HIPAA compliance, can also result in financial penalties.
+        Physical security
+        Physical security is the protection of personnel, hardware, software, networks and data from physical actions,
+        intrusions and other events that could damage an organization. This includes natural disasters, fire, theft and
+        terrorism, among others. Physical security for enterprises often includes employee access control to the office
+        buildings as well as specific locations, such as data centers. An example of a common physical security threat
+        is an attacker gaining entry to an organization and using a USB storage drive to either copy and remove
+        sensitive data or physically deliver malware directly to systems. Threats to physical security may require less
+        technical savvy on the part of the attacker, but physical security is just as important as information security.
+        Information security
+        Information security, also called infosec, encompasses a broad set of strategies for managing the process, tools
+        and policies that aim to prevent, detect and respond to threats to both digital and nondigital information
+        assets. Infosec includes several specialized categories, including:
+        Application security - the protection of applications from threats that seek to manipulate application and
+        access, steal, modify or delete data. These protections use software, hardware and policies, and are sometimes
+        called countermeasures. Common countermeasures include application firewalls, encryption programs, patch
+        management and biometric authentication systems.
+
+        Information security update 2015 with David Sherry
+        Information security update 2015 with David Sherry
+        Play
+        Mute
+        Current Time 0:00
+        /
+        Duration Time 14:05
+
+        Fullscreen
+        Learn from the past: Ensure a secure future of information security
+        Cloud security - the set of policies and technologies designed to protect data and infrastructure involved in a
+        cloud computing environment. The top concerns that cloud security looks to address are identity and access
+        management, and data privacy.
+
+        Endpoint security - the part of network security that requires network devices nodes to meet certain security
+        standards before they can connect to a secure network. Nodes devices include PCs, laptops, smartphones and
+        tablets. Endpoint security also extends to equipment like point-of-sale (POS) terminals, bar code readers and
+        IoT devices.
+        Internet security - the protection of software applications, web browsers and virtual private networks (VPNs)
+        that use the internet. Using techniques such as encryption and internet security aim to defend the transfer of
+        data from attacks like malware and phishing as well as denial-of-service (DoS) attacks.
+        Mobile security - the protection of portable devices, such as smartphones, tablets and laptops. Mobile security,
+        also known as wireless security, secures the devices and the networks they connect to in order to prevent theft,
+        data leakage and malware attacks.
+        Network security - the protection of a network infrastructure and the devices connected to it through
+        technologies, policies and practices. Network security defends against threats such as unauthorized access, and
+        malicious use and modifications.
+        Security concepts and principles
+        Security in IT is a broad concept that blankets many different ideas and principles. Some of the most important
+        security concepts and principles are:
+        Defense in depth - a strategy that uses multiple countermeasures to protect information and is based on the
+        military principle that it's more difficult for an enemy to beat a multilayered defense system than it is to
+        beat a single layer.
+
+        Least privilege - a principle that limits user and program access to the lowest possible level of access rights
+        in order to strengthen security.
+        Vulnerability management - an approach to security that requires checking for vulnerabilities, identifying them,
+        verifying them, mitigating them and patching the vulnerabilities.
+        Risk management - the process of identifying, assessing and controlling risks to an organization's IT
+        environment.
+        Patch management - an area of systems management that involves acquiring, testing and installing patches and
+        updates for flawed code in applications, operating systems and firmware.
+        Application lifecycle management - the concept of protecting all stages of the development of an application to
+        reduce its exposure to bugs, design flaws and configuration errors, such as not changing default passwords that
+        could be exploited by attackers.
+        While there are many other concepts and principles that make up security, these are some of the most important.
+        The combination of all of these principles will not guarantee security for an organization, but it puts the
+        organization in a better position to defend itself from infosec threats.
+        Security, in information technology (IT), is the defense of digital information and IT assets against internal
+        and external, malicious and accidental threats. This defense includes detection, prevention and response to
+        threats through the use of security policies, software tools and IT services.
+        Security is critical for enterprises and organizations of all sizes and in all industries. Weak security can
+        result in compromised systems or data, either by a malicious threat actor or an unintentional internal threat.
+        Not meeting security standards that are regulated by a separate organization or law, such as PCI DSS 3.0 or
+        HIPAA compliance, can also result in financial penalties.
+        Physical security
+        Physical security is the protection of personnel, hardware, software, networks and data from physical actions,
+        intrusions and other events that could damage an organization. This includes natural disasters, fire, theft and
+        terrorism, among others. Physical security for enterprises often includes employee access control to the office
+        buildings as well as specific locations, such as data centers. An example of a common physical security threat
+        is an attacker gaining entry to an organization and using a USB storage drive to either copy and remove
+        sensitive data or physically deliver malware directly to systems. Threats to physical security may require less
+        technical savvy on the part of the attacker, but physical security is just as important as information security.
+        Information security
+        Information security, also called infosec, encompasses a broad set of strategies for managing the process, tools
+        and policies that aim to prevent, detect and respond to threats to both digital and nondigital information
+        assets. Infosec includes several specialized categories, including:
+        Application security - the protection of applications from threats that seek to manipulate application and
+        access, steal, modify or delete data. These protections use software, hardware and policies, and are sometimes
+        called countermeasures. Common countermeasures include application firewalls, encryption programs, patch
+        management and biometric authentication systems.
+
+        Information security update 2015 with David Sherry
+        Information security update 2015 with David Sherry
+        Play
+        Mute
+        Current Time 0:00
+        /
+        Duration Time 14:05
+
+        Fullscreen
+        Learn from the past: Ensure a secure future of information security
+        Cloud security - the set of policies and technologies designed to protect data and infrastructure involved in a
+        cloud computing environment. The top concerns that cloud security looks to address are identity and access
+        management, and data privacy.
+
+        Endpoint security - the part of network security that requires network devices nodes to meet certain security
+        standards before they can connect to a secure network. Nodes devices include PCs, laptops, smartphones and
+        tablets. Endpoint security also extends to equipment like point-of-sale (POS) terminals, bar code readers and
+        IoT devices.
+        Internet security - the protection of software applications, web browsers and virtual private networks (VPNs)
+        that use the internet. Using techniques such as encryption and internet security aim to defend the transfer of
+        data from attacks like malware and phishing as well as denial-of-service (DoS) attacks.
+        Mobile security - the protection of portable devices, such as smartphones, tablets and laptops. Mobile security,
+        also known as wireless security, secures the devices and the networks they connect to in order to prevent theft,
+        data leakage and malware attacks.
+        Network security - the protection of a network infrastructure and the devices connected to it through
+        technologies, policies and practices. Network security defends against threats such as unauthorized access, and
+        malicious use and modifications.
+        Security concepts and principles
+        Security in IT is a broad concept that blankets many different ideas and principles. Some of the most important
+        security concepts and principles are:
+        Defense in depth - a strategy that uses multiple countermeasures to protect information and is based on the
+        military principle that it's more difficult for an enemy to beat a multilayered defense system than it is to
+        beat a single layer.
+
+        Least privilege - a principle that limits user and program access to the lowest possible level of access rights
+        in order to strengthen security.
+        Vulnerability management - an approach to security that requires checking for vulnerabilities, identifying them,
+        verifying them, mitigating them and patching the vulnerabilities.
+        Risk management - the process of identifying, assessing and controlling risks to an organization's IT
+        environment.
+        Patch management - an area of systems management that involves acquiring, testing and installing patches and
+        updates for flawed code in applications, operating systems and firmware.
+        Application lifecycle management - the concept of protecting all stages of the development of an application to
+        reduce its exposure to bugs, design flaws and configuration errors, such as not changing default passwords that
+        could be exploited by attackers.
+        While there are many other concepts and principles that make up security, these are some of the most important.
+        The combination of all of these principles will not guarantee security for an organization, but it puts the
+        organization in a better position to defend itself from infosec threats.
+        Security, in information technology (IT), is the defense of digital information and IT assets against internal
+        and external, malicious and accidental threats. This defense includes detection, prevention and response to
+        threats through the use of security policies, software tools and IT services.
+        Security is critical for enterprises and organizations of all sizes and in all industries. Weak security can
+        result in compromised systems or data, either by a malicious threat actor or an unintentional internal threat.
+        Not meeting security standards that are regulated by a separate organization or law, such as PCI DSS 3.0 or
+        HIPAA compliance, can also result in financial penalties.
+        Physical security
+        Physical security is the protection of personnel, hardware, software, networks and data from physical actions,
+        intrusions and other events that could damage an organization. This includes natural disasters, fire, theft and
+        terrorism, among others. Physical security for enterprises often includes employee access control to the office
+        buildings as well as specific locations, such as data centers. An example of a common physical security threat
+        is an attacker gaining entry to an organization and using a USB storage drive to either copy and remove
+        sensitive data or physically deliver malware directly to systems. Threats to physical security may require less
+        technical savvy on the part of the attacker, but physical security is just as important as information security.
+        Information security
+        Information security, also called infosec, encompasses a broad set of strategies for managing the process, tools
+        and policies that aim to prevent, detect and respond to threats to both digital and nondigital information
+        assets. Infosec includes several specialized categories, including:
+        Application security - the protection of applications from threats that seek to manipulate application and
+        access, steal, modify or delete data. These protections use software, hardware and policies, and are sometimes
+        called countermeasures. Common countermeasures include application firewalls, encryption programs, patch
+        management and biometric authentication systems.
+
+        Information security update 2015 with David Sherry
+        Information security update 2015 with David Sherry
+        Play
+        Mute
+        Current Time 0:00
+        /
+        Duration Time 14:05
+
+        Fullscreen
+        Learn from the past: Ensure a secure future of information security
+        Cloud security - the set of policies and technologies designed to protect data and infrastructure involved in a
+        cloud computing environment. The top concerns that cloud security looks to address are identity and access
+        management, and data privacy.
+
+        Endpoint security - the part of network security that requires network devices nodes to meet certain security
+        standards before they can connect to a secure network. Nodes devices include PCs, laptops, smartphones and
+        tablets. Endpoint security also extends to equipment like point-of-sale (POS) terminals, bar code readers and
+        IoT devices.
+        Internet security - the protection of software applications, web browsers and virtual private networks (VPNs)
+        that use the internet. Using techniques such as encryption and internet security aim to defend the transfer of
+        data from attacks like malware and phishing as well as denial-of-service (DoS) attacks.
+        Mobile security - the protection of portable devices, such as smartphones, tablets and laptops. Mobile security,
+        also known as wireless security, secures the devices and the networks they connect to in order to prevent theft,
+        data leakage and malware attacks.
+        Network security - the protection of a network infrastructure and the devices connected to it through
+        technologies, policies and practices. Network security defends against threats such as unauthorized access, and
+        malicious use and modifications.
+        Security concepts and principles
+        Security in IT is a broad concept that blankets many different ideas and principles. Some of the most important
+        security concepts and principles are:
+        Defense in depth - a strategy that uses multiple countermeasures to protect information and is based on the
+        military principle that it's more difficult for an enemy to beat a multilayered defense system than it is to
+        beat a single layer.
+
+        Least privilege - a principle that limits user and program access to the lowest possible level of access rights
+        in order to strengthen security.
+        Vulnerability management - an approach to security that requires checking for vulnerabilities, identifying them,
+        verifying them, mitigating them and patching the vulnerabilities.
+        Risk management - the process of identifying, assessing and controlling risks to an organization's IT
+        environment.
+        Patch management - an area of systems management that involves acquiring, testing and installing patches and
+        updates for flawed code in applications, operating systems and firmware.
+        Application lifecycle management - the concept of protecting all stages of the development of an application to
+        reduce its exposure to bugs, design flaws and configuration errors, such as not changing default passwords that
+        could be exploited by attackers.
+        While there are many other concepts and principles that make up security, these are some of the most important.
+        The combination of all of these principles will not guarantee security for an organization, but it puts the
+        organization in a better position to defend itself from infosec threats.
+        Security, in information technology (IT), is the defense of digital information and IT assets against internal
+        and external, malicious and accidental threats. This defense includes detection, prevention and response to
+        threats through the use of security policies, software tools and IT services.
+        Security is critical for enterprises and organizations of all sizes and in all industries. Weak security can
+        result in compromised systems or data, either by a malicious threat actor or an unintentional internal threat.
+        Not meeting security standards that are regulated by a separate organization or law, such as PCI DSS 3.0 or
+        HIPAA compliance, can also result in financial penalties.
+        Physical security
+        Physical security is the protection of personnel, hardware, software, networks and data from physical actions,
+        intrusions and other events that could damage an organization. This includes natural disasters, fire, theft and
+        terrorism, among others. Physical security for enterprises often includes employee access control to the office
+        buildings as well as specific locations, such as data centers. An example of a common physical security threat
+        is an attacker gaining entry to an organization and using a USB storage drive to either copy and remove
+        sensitive data or physically deliver malware directly to systems. Threats to physical security may require less
+        technical savvy on the part of the attacker, but physical security is just as important as information security.
+        Information security
+        Information security, also called infosec, encompasses a broad set of strategies for managing the process, tools
+        and policies that aim to prevent, detect and respond to threats to both digital and nondigital information
+        assets. Infosec includes several specialized categories, including:
+        Application security - the protection of applications from threats that seek to manipulate application and
+        access, steal, modify or delete data. These protections use software, hardware and policies, and are sometimes
+        called countermeasures. Common countermeasures include application firewalls, encryption programs, patch
+        management and biometric authentication systems.
+
+        Information security update 2015 with David Sherry
+        Information security update 2015 with David Sherry
+        Play
+        Mute
+        Current Time 0:00
+        /
+        Duration Time 14:05
+
+        Fullscreen
+        Learn from the past: Ensure a secure future of information security
+        Cloud security - the set of policies and technologies designed to protect data and infrastructure involved in a
+        cloud computing environment. The top concerns that cloud security looks to address are identity and access
+        management, and data privacy.
+
+        Endpoint security - the part of network security that requires network devices nodes to meet certain security
+        standards before they can connect to a secure network. Nodes devices include PCs, laptops, smartphones and
+        tablets. Endpoint security also extends to equipment like point-of-sale (POS) terminals, bar code readers and
+        IoT devices.
+        Internet security - the protection of software applications, web browsers and virtual private networks (VPNs)
+        that use the internet. Using techniques such as encryption and internet security aim to defend the transfer of
+        data from attacks like malware and phishing as well as denial-of-service (DoS) attacks.
+        Mobile security - the protection of portable devices, such as smartphones, tablets and laptops. Mobile security,
+        also known as wireless security, secures the devices and the networks they connect to in order to prevent theft,
+        data leakage and malware attacks.
+        Network security - the protection of a network infrastructure and the devices connected to it through
+        technologies, policies and practices. Network security defends against threats such as unauthorized access, and
+        malicious use and modifications.
+        Security concepts and principles
+        Security in IT is a broad concept that blankets many different ideas and principles. Some of the most important
+        security concepts and principles are:
+        Defense in depth - a strategy that uses multiple countermeasures to protect information and is based on the
+        military principle that it's more difficult for an enemy to beat a multilayered defense system than it is to
+        beat a single layer.
+
+        Least privilege - a principle that limits user and program access to the lowest possible level of access rights
+        in order to strengthen security.
+        Vulnerability management - an approach to security that requires checking for vulnerabilities, identifying them,
+        verifying them, mitigating them and patching the vulnerabilities.
+        Risk management - the process of identifying, assessing and controlling risks to an organization's IT
+        environment.
+        Patch management - an area of systems management that involves acquiring, testing and installing patches and
+        updates for flawed code in applications, operating systems and firmware.
+        Application lifecycle management - the concept of protecting all stages of the development of an application to
+        reduce its exposure to bugs, design flaws and configuration errors, such as not changing default passwords that
+        could be exploited by attackers.
+        While there are many other concepts and principles that make up security, these are some of the most important.
+        The combination of all of these principles will not guarantee security for an organization, but it puts the
+        organization in a better position to defend itself from infosec threats.
+    </p>
+
+    <div class="shadow">
+        <div class="card card--inverted">
+            <h2>URL malicious finder</h2>
+            <br>
+            <label class="input">
+              <input type="text" id="text1" name="text1" class="input__field" placeholder="" value="" />
+              <span class="input__label">Enter your URL</span>
+            </label>
+           <br>
+            <div class="button-group">
+              <button onclick="myFunction()">Find</button>
+              <button type="reset" onclick="resetText()">Reset</button>
+            </div>
+            <br>
+            <div class="show-data"> </div>
+          </div>
+    </div>
+</body>
+
+</html>
