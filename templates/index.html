@@ -62,6 +62,11 @@
                 html = "<h2>The Entered URL is " + convert(val) + " URL</h2>"
             });
             $(".show-data").append(html);
+        }).fail(function (xhr) {
+            var message = xhr.responseJSON && xhr.responseJSON.error;
+            $(".show-data").empty().append(
+                $('<h2>').text(message || 'Unable to classify this URL. Please try again.')
+            );
         });
     };
 

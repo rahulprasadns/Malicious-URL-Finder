@@ -115,17 +115,45 @@ def get_inputs(url):
     
 def predict_model(url):
     inputs = get_inputs(url)
-    print(inputs)
     joblib_LR_model = joblib.load('model.pkl')
     Ypredict = joblib_LR_model.predict(inputs)  
     return Ypredict[0]
 
 
 
+def is_valid_url(url):
+    """Check HTTP(S) syntax only; never fetch or assess the URL's safety."""
+    if not url or any(char.isspace() or ord(char) < 32 or ord(char) == 127
+                      for char in url) or '\\' in url:
+        return False
+    try:
+        parsed = urlparse(url)
+        # Accessing hostname/port also validates bracket and port syntax.
+        hostname = parsed.hostname
+        port = parsed.port
+        if not hostname:
+            return False
+        # urlparse validates bracketed IPv6; check DNS labels separately.
+        if ':' not in hostname:
+            ascii_host = hostname.encode('idna').decode('ascii').rstrip('.')
+            if len(ascii_host) > 253 or not all(
+                re.fullmatch(r'[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?', label)
+                for label in ascii_host.split('.')
+            ):
+                return False
+        return (parsed.scheme.lower() in ('http', 'https')
+                and bool(hostname)
+                and not any(char in hostname for char in '%/?#@')
+                and (port is None or 0 < port <= 65535))
+    except (ValueError, UnicodeError):
+        return False
+
+
 @app.route('/model', methods=['GET','POST'])
 def my_form_post():
-    print(request.form)
-    url = request.form['url']
+    url = request.form.get('url', '')
+    if not is_valid_url(url):
+        return jsonify(error='Enter a valid HTTP or HTTPS URL with a hostname.'), 400
     kind_of_url = predict_model(url)
     result = {
         "output": int(kind_of_url)
